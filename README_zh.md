@@ -33,7 +33,8 @@
 - score 类型 teacher：probabilities 以索引字符串为键（`"0"`、`"1"`、...），总和归一化为 1.0。
 - choice 类型 teacher：probabilities 以选项名为键；noul 类型 teacher：`{"noul": float}`。
 - `generator`: `v1-{domain}`（如 `v1-compliance`）。
-- 双输出：JSON 数组文件（如 `dataset_50.json`）+ 增量 JSONL（`dataset_50.jsonl`，每行一条样本，用于 resume）。
+- 双输出：JSON 数组文件（如 `dataset_50.json`）+ 增量 JSONL（`dataset_50.jsonl`，每行一个自包含 JSON 对象，用于 resume）。
+- **微调请喂 `.jsonl`**——Unsloth 等训练器直接读取行分隔 JSON；`.json` 是单个 JSON 文档，不能按行解析，用于人工检查、评估（`evaluate_dataset.py`）与参考格式对齐。
 - 输出即目标微调数据格式（与参考文件逐字段对齐），按该格式消费的训练管线可直接使用，无需额外转换。
 
 ## 面向的模型类型与微调对接

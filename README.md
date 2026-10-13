@@ -35,7 +35,8 @@ Each sample contains:
 - score teacher: probabilities keyed by index strings (`"0"`, `"1"`, ...), normalized to sum to 1.0.
 - choice teacher: probabilities keyed by option name; noul teacher: `{"noul": float}`.
 - `generator`: `v1-{domain}` (e.g. `v1-compliance`).
-- Dual output: JSON array file (e.g. `dataset_50.json`) + incremental JSONL (`dataset_50.jsonl`, one sample per line, used for resume).
+- Dual output: JSON array file (e.g. `dataset_50.json`) + incremental JSONL (`dataset_50.jsonl`, one self-contained JSON object per line, used for resume).
+- **For fine-tuning, feed the `.jsonl`** — trainers such as Unsloth read line-delimited JSON directly; the `.json` array is a single JSON document and cannot be parsed line by line. The `.json` file is for human inspection, evaluation (`evaluate_dataset.py`), and reference-format alignment.
 - The output is already the target fine-tuning data format (field-aligned with the reference file); training pipelines that consume this format can use it directly, no extra conversion needed.
 
 ## Target Model Type & Fine-tuning Integration
