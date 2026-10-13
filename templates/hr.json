@@ -1,0 +1,433 @@
+[
+  {
+    "key": "onboarding_compliant",
+    "type": "choice",
+    "instructions": "判断新员工入职流程是否符合公司政策。",
+    "criteria": {
+      "compliant": "所有入职文件齐全，背景调查完成，培训已安排",
+      "non-compliant": "缺少必要文件或步骤，存在明显违规",
+      "needs-review": "处于灰色地带，需要人工复核"
+    }
+  },
+  {
+    "key": "performance_review_fair",
+    "type": "noul",
+    "instructions": "判断绩效评估是否公平无偏见。",
+    "criteria": {
+      "true": "评估基于客观标准，无歧视或偏见",
+      "false": "评估存在主观偏见或歧视性因素"
+    }
+  },
+  {
+    "key": "harassment_claim_valid",
+    "type": "noul",
+    "instructions": "判断骚扰投诉是否成立。",
+    "criteria": {
+      "true": "投诉内容属实，构成骚扰行为",
+      "false": "投诉不属实或不构成骚扰"
+    }
+  },
+  {
+    "key": "leave_request_approved",
+    "type": "choice",
+    "instructions": "判断请假申请是否应被批准。",
+    "criteria": {
+      "approve": "符合请假政策，应予批准",
+      "deny": "不符合请假政策，应予拒绝",
+      "partial": "部分符合条件，建议协商"
+    }
+  },
+  {
+    "key": "salary_compliance",
+    "type": "noul",
+    "instructions": "判断薪酬发放是否符合劳动法规。",
+    "criteria": {
+      "true": "薪酬计算和发放符合所有相关法律法规",
+      "false": "存在薪酬违规情况"
+    }
+  },
+  {
+    "key": "termination_procedure_compliant",
+    "type": "choice",
+    "instructions": "判断员工离职/辞退程序是否合规。",
+    "criteria": {
+      "compliant": "遵循了所有法定和合同约定的离职程序",
+      "non-compliant": "存在程序违规或权利侵害",
+      "needs-review": "需要法律或HR专家进一步审核"
+    }
+  },
+  {
+    "key": "training_completion_rate",
+    "type": "score",
+    "instructions": "评估培训完成率。",
+    "criteria": [
+      "完全未参与",
+      "部分参与",
+      "基本完成",
+      "全部完成"
+    ]
+  },
+  {
+    "key": "code_of_conduct_violation",
+    "type": "noul",
+    "instructions": "判断是否存在违反员工行为准则的情况。",
+    "criteria": {
+      "true": "存在明确违反行为准则的行为",
+      "false": "未发现违规行为"
+    }
+  },
+  {
+    "key": "remote_work_policy_compliant",
+    "type": "noul",
+    "instructions": "判断远程办公申请是否符合公司政策。",
+    "criteria": {
+      "true": "符合远程办公政策要求",
+      "false": "不符合远程办公政策要求"
+    }
+  },
+  {
+    "key": "hr_data_privacy_breach",
+    "type": "noul",
+    "instructions": "判断是否发生HR数据隐私泄露事件。",
+    "criteria": {
+      "true": "员工个人信息被未经授权访问或披露",
+      "false": "未发生数据泄露"
+    }
+  },
+  {
+    "key": "overtime_compliance",
+    "type": "noul",
+    "instructions": "判断加班安排是否符合劳动法规。",
+    "criteria": {
+      "true": "加班时长和补偿符合法律规定",
+      "false": "存在超时加班或未依法补偿"
+    }
+  },
+  {
+    "key": "workplace_safety_violation",
+    "type": "noul",
+    "instructions": "判断是否存在工作场所安全隐患或违规。",
+    "criteria": {
+      "true": "存在违反安全规定的行为或隐患",
+      "false": "安全工作符合规范"
+    }
+  },
+  {
+    "key": "recruitment_bias",
+    "type": "noul",
+    "instructions": "判断招聘过程中是否存在歧视性偏见。",
+    "criteria": {
+      "true": "招聘标准或流程存在歧视性因素",
+      "false": "招聘过程公平无偏见"
+    }
+  },
+  {
+    "key": "promotion_fairness",
+    "type": "score",
+    "instructions": "评估晋升机制的公平程度。",
+    "criteria": [
+      "完全不公平",
+      "基本不公平",
+      "基本公平",
+      "完全公平"
+    ]
+  },
+  {
+    "key": "benefits_compliance",
+    "type": "noul",
+    "instructions": "判断福利待遇发放是否符合法规和政策。",
+    "criteria": {
+      "true": "福利发放符合所有法规和合同承诺",
+      "false": "存在福利违规或不足"
+    }
+  },
+  {
+    "key": "employee_engagement_level",
+    "type": "score",
+    "instructions": "评估员工敬业度水平。",
+    "criteria": [
+      "非常低",
+      "较低",
+      "一般",
+      "较高",
+      "非常高"
+    ]
+  },
+  {
+    "key": "conflict_of_interest",
+    "type": "noul",
+    "instructions": "判断是否存在利益冲突情况。",
+    "criteria": {
+      "true": "存在未披露或无法避免的利益冲突",
+      "false": "已妥善处理利益冲突"
+    }
+  },
+  {
+    "key": "disciplinary_action_adequate",
+    "type": "choice",
+    "instructions": "判断纪律处分是否适当。",
+    "criteria": {
+      "light": "轻微处分，如口头警告",
+      "moderate": "中等处分，如书面警告或停职",
+      "severe": "严重处分，如辞退或起诉"
+    }
+  },
+  {
+    "key": "background_check_eligibility",
+    "type": "noul",
+    "instructions": "Determine whether the applicant is eligible to be considered a 'new hire' at FRI. Per Section 1.2, an applicant is not a new hire until a conditional offer has been extended AND all background checks have been completed and verified. If the applicant cannot provide valid identification or successfully complete any government-required background check, they are not eligible for employment.",
+    "criteria": {
+      "true": "Applicant has provided valid identification and all government-required background checks (criminal, debarment, security) have been completed and verified following a conditional offer of employment.",
+      "false": "Applicant failed to provide valid identification, or one or more required background checks remain incomplete or unverified."
+    },
+    "facts": {
+      "field": "valid_id_and_checks_verified",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "background checks",
+      "employment eligibility"
+    ]
+  },
+  {
+    "key": "introductory_period_discipline",
+    "type": "noul",
+    "instructions": "Determine whether the accelerated disciplinary threshold has been met during the 6-month introductory employment period. Per Section 5.4 and 2.9, during the introductory period the disciplinary policy is accelerated: 2 reprimands within the introductory period may result in termination of employment. An unsatisfactory performance evaluation also counts as a written reprimand.",
+    "criteria": {
+      "true": "The employee has accumulated 2 or more reprimands (verbal, written, second written, or an unsatisfactory evaluation counted as a written reprimand) during the 6-month introductory period, triggering possible termination.",
+      "false": "The employee has fewer than 2 reprimands during the introductory period; standard progressive discipline applies."
+    },
+    "facts": {
+      "field": "reprimand_count_intro_period",
+      "rule": {
+        "op": "gte",
+        "value": 2
+      }
+    },
+    "policy_keywords": [
+      "introductory period",
+      "disciplinary policy"
+    ]
+  },
+  {
+    "key": "fmla_eligibility_met",
+    "type": "noul",
+    "instructions": "Determine whether the employee meets the FRI-FMLA eligibility threshold of having worked at least 1,250 hours for the Institute during the twelve-month period immediately before the date the leave is requested to commence. Per Section 6.5.1, this is one of three required conditions (along with 12 months/52 weeks of employment and worksite headcount).",
+    "criteria": {
+      "true": "The employee has worked at least 1,250 hours in the rolling 12-month period prior to the leave request, satisfying the FLSA-based hours test.",
+      "false": "The employee has worked fewer than 1,250 hours in the applicable 12-month period and does not meet the FRI-FMLA eligibility threshold."
+    },
+    "facts": {
+      "field": "hours_worked_prior_12mo",
+      "rule": {
+        "op": "gte",
+        "value": 1250
+      }
+    },
+    "policy_keywords": [
+      "FMLA",
+      "eligibility",
+      "1250 hours"
+    ]
+  },
+  {
+    "key": "advance_on_pay_eligible",
+    "type": "noul",
+    "instructions": "Determine whether the employee qualifies for an advance on pay. Per Section 5.10, an advance may be authorized only if the employee has been employed with FRI for at least 6 months and has a financial hardship as determined by HR. Advances are granted no more than 2 times per year.",
+    "criteria": {
+      "true": "The employee has been continuously employed by FRI for at least 6 months, satisfying the tenure prerequisite for a pay advance.",
+      "false": "The employee has been employed for fewer than 6 months and is not yet eligible to request a pay advance."
+    },
+    "facts": {
+      "field": "months_employed",
+      "rule": {
+        "op": "gte",
+        "value": 6
+      }
+    },
+    "policy_keywords": [
+      "advance on pay",
+      "financial hardship"
+    ]
+  },
+  {
+    "key": "sick_bank_eligibility",
+    "type": "noul",
+    "instructions": "Determine whether an employee is eligible to request leave donations from the FRI Sick Bank. Per Section 4.11, employees requesting Sick Bank leave must have exhausted all sick, vacation, and personal leave. The request must also meet the definition of a 'medical emergency.' Direct solicitation of coworkers by the requesting employee is prohibited and automatically disqualifies the employee.",
+    "criteria": {
+      "true": "The employee has fully exhausted all sick, vacation, and personal leave balances and the request qualifies as a medical emergency per policy definition.",
+      "false": "The employee still has remaining sick, vacation, or personal leave balance, or the request does not meet the medical emergency definition, or the employee directly solicited coworkers."
+    },
+    "facts": {
+      "field": "all_leave_exhausted",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Sick Bank",
+      "leave donation",
+      "medical emergency"
+    ]
+  },
+  {
+    "key": "car_rental_exceeds_cap",
+    "type": "noul",
+    "instructions": "Determine whether a business car rental exceeds FRI's $65-per-day cap and therefore requires supervisor approval. Per Section 4.3 (Travel Policy), employees must make every effort to obtain the lowest possible car rental rate not to exceed $65 per day. Anything in excess of $65 must be approved by a supervisor.",
+    "criteria": {
+      "true": "The car rental cost is at or above $65 per day, requiring prior supervisor approval before reimbursement.",
+      "false": "The car rental cost is below $65 per day and falls within the standard reimbursable limit without additional approval."
+    },
+    "facts": {
+      "field": "daily_car_rental_cost",
+      "rule": {
+        "op": "gte",
+        "value": 65
+      }
+    },
+    "policy_keywords": [
+      "travel policy",
+      "car rental"
+    ]
+  },
+  {
+    "key": "whistleblower_retaliation",
+    "type": "noul",
+    "instructions": "Determine whether retaliation or intimidation has occurred against a whistleblower who made a disclosure under FRI's Whistleblower Policy. Per Section 4.8.4, attempts to intimidate or threaten informants, or any retaliation or harassment following a disclosure, are strictly prohibited and subject to disciplinary action up to and including termination.",
+    "criteria": {
+      "true": "At least one instance of retaliation, intimidation, or harassment against the informant has been identified following their protected disclosure.",
+      "false": "No instance of retaliation, intimidation, or harassment against the informant has been identified."
+    },
+    "facts": {
+      "field": "retaliation_flags",
+      "rule": {
+        "op": "count_gte",
+        "value": 1
+      }
+    },
+    "policy_keywords": [
+      "whistleblower",
+      "retaliation protection"
+    ]
+  },
+  {
+    "key": "lactation_response_deadline_met",
+    "type": "noul",
+    "instructions": "Determine whether FRI responded to an employee's written lactation accommodation request within the required 5-business-day deadline. Per Section 5.8, FRI will respond to any such request within 5 business days and will engage in an interactive dialogue with the employee to determine appropriate lactation break periods and location.",
+    "criteria": {
+      "true": "FRI provided a response to the written lactation accommodation request within 5 business days of receipt.",
+      "false": "FRI failed to respond within 5 business days, violating the lactation accommodation policy timeline."
+    },
+    "facts": {
+      "field": "business_days_to_response",
+      "rule": {
+        "op": "lte",
+        "value": 5
+      }
+    },
+    "policy_keywords": [
+      "lactation",
+      "accommodation",
+      "response deadline"
+    ]
+  },
+  {
+    "key": "personal_leave_accrual_rate",
+    "type": "score",
+    "instructions": "Determine the correct personal leave accrual rate (hours per 2-week pay period) based on the employee's weekly hours. Per Section 6.4, full-time employees (40 hrs/week) accrue 1.54 hours per pay period; part-time employees working 20-39 hrs/week accrue a proportionate amount. Employees working fewer than 20 hrs/week do not accrue personal leave.",
+    "criteria": {
+      "0": "Full-time (40 hrs/week): 1.54 hours accrued per 2-week pay period, up to 40-hour annual cap.",
+      "1": "Part-time at 75% (30 hrs/week): approximately 1.155 hours accrued per 2-week pay period, up to 30-hour annual cap.",
+      "2": "Part-time at 50% (20 hrs/week): approximately 0.77 hours accrued per 2-week pay period, up to 20-hour annual cap."
+    },
+    "facts": {
+      "field": "weekly_hours",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "40": 0,
+          "30": 1,
+          "20": 2
+        }
+      }
+    },
+    "policy_keywords": [
+      "personal leave",
+      "accrual rate"
+    ]
+  },
+  {
+    "key": "vacation_accrual_tier",
+    "type": "score",
+    "instructions": "Determine the correct vacation leave accrual tier and corresponding hours-per-pay-period rate based on the employee's years of service. Per Section 6.3, accrual is based on anniversary date with tiers: 1-5 years (2 wks/yr), 6-10 years (3 wks/yr), 11-20 years (4 wks/yr), 21-30 years (5 wks/yr), 31+ years (6 wks/yr), scaled by percentage of time worked.",
+    "criteria": {
+      "0": "1-5 years of service: 2 weeks/year; at 100% time = 3.08 hrs per pay period; accrual rate .038500/hr.",
+      "1": "6-10 years of service: 3 weeks/year; at 100% time = 4.62 hrs per pay period; accrual rate .057750/hr.",
+      "2": "11-20 years of service: 4 weeks/year; at 100% time = 6.15 hrs per pay period; accrual rate .076875/hr.",
+      "3": "21-30 years of service: 5 weeks/year; at 100% time = 7.69 hrs per pay period; accrual rate .096125/hr.",
+      "4": "31+ years of service: 6 weeks/year; at 100% time = 9.23 hrs per pay period; accrual rate .115375/hr."
+    },
+    "facts": {
+      "field": "years_of_service_band",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "1_5": 0,
+          "6_10": 1,
+          "11_20": 2,
+          "21_30": 3,
+          "31_plus": 4
+        }
+      }
+    },
+    "policy_keywords": [
+      "vacation leave",
+      "years of service"
+    ]
+  },
+  {
+    "key": "resignation_notice_period",
+    "type": "choice",
+    "instructions": "Determine the required resignation notice period based on the employee's role. Per Section 10.1, a regular FRI employee must resign in writing and provide at least 2 weeks' notice to their immediate supervisor. FRI employees who work as managers should be prepared to provide at least 30 days' notice. Failure to provide such notice most likely results in ineligibility for rehire.",
+    "criteria": {
+      "regular_employee": "Employee must provide at least 2 weeks' written notice to their immediate supervisor upon resignation.",
+      "manager": "Manager must provide at least 30 days' notice to their immediate supervisor upon resignation."
+    },
+    "facts": {
+      "field": "employee_role",
+      "rule": {
+        "op": "identity"
+      }
+    },
+    "policy_keywords": [
+      "termination",
+      "resignation notice"
+    ]
+  },
+  {
+    "key": "ssl_use_category",
+    "type": "choice",
+    "instructions": "Classify the purpose for which an employee is requesting Sick and Safe Leave (SSL) under the Maryland Healthy Working Families Act. Per Section 6.2, SSL may be used for: (1) care/treatment of employee's own illness; (2) preventative medical care; (3) care for a family member; (4) maternity/paternity leave; or (5) absence due to domestic violence, sexual assault, or stalking.",
+    "criteria": {
+      "own_illness": "The employee is using SSL to care for or treat their own mental or physical illness, injury, or condition.",
+      "preventative_care": "The employee is using SSL to obtain preventative medical care for themselves or a family member.",
+      "family_care": "The employee is using SSL to care for a family member (as defined in Maryland law) with a mental or physical illness, injury, or condition.",
+      "maternity_paternity": "The employee is using SSL for maternity or paternity leave.",
+      "domestic_violence": "The absence is necessary due to domestic violence, sexual assault, or stalking committed against the employee or a family member, for medical attention, victim services, legal proceedings, or temporary relocation."
+    },
+    "facts": {
+      "field": "leave_purpose",
+      "rule": {
+        "op": "identity"
+      }
+    },
+    "policy_keywords": [
+      "sick and safe leave",
+      "Maryland Healthy Working Families Act"
+    ]
+  }
+]

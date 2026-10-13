@@ -1,0 +1,81 @@
+[
+  {
+    "key": "product_listing_compliant",
+    "type": "noul",
+    "instructions": "判断商品发布是否符合平台规则。",
+    "criteria": {
+      "true": "商品发布符合所有平台规则",
+      "false": "商品发布违反平台规则"
+    }
+  },
+  {
+    "key": "return_request_valid",
+    "type": "noul",
+    "instructions": "判断退货请求是否合理。",
+    "criteria": {
+      "true": "退货请求符合退货政策",
+      "false": "退货请求不符合退货政策"
+    }
+  },
+  {
+    "key": "seller_compliance_score",
+    "type": "score",
+    "instructions": "评估卖家合规程度。",
+    "criteria": [
+      "完全合规",
+      "基本合规",
+      "部分违规",
+      "严重违规"
+    ]
+  },
+  {
+    "key": "customer_review_authentic",
+    "type": "noul",
+    "instructions": "判断评价是否真实。",
+    "criteria": {
+      "true": "评价来自真实购买者",
+      "false": "评价可能是虚假的"
+    }
+  },
+  {
+    "key": "payment_fraud_risk",
+    "type": "score",
+    "instructions": "评估支付欺诈风险等级。",
+    "criteria": [
+      "低风险",
+      "中等风险",
+      "高风险",
+      "极高风险"
+    ]
+  },
+  {
+    "key": "shipping_compliant",
+    "type": "noul",
+    "instructions": "判断发货是否符合约定。",
+    "criteria": {
+      "true": "已按约定时间和方式发货",
+      "false": "未按约定发货"
+    }
+  },
+  {
+    "key": "refund_adequate",
+    "type": "choice",
+    "instructions": "判断退款金额是否合理。",
+    "criteria": {
+      "full": "全额退款",
+      "partial": "部分退款",
+      "no_refund": "不予退款"
+    }
+  },
+  {
+    "key": "dispute_severity",
+    "type": "score",
+    "instructions": "评估纠纷严重程度。",
+    "criteria": [
+      "轻微",
+      "中等",
+      "严重",
+      "极严重"
+    ]
+  }
+]

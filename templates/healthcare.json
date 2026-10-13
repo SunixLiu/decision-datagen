@@ -1,0 +1,79 @@
+[
+  {
+    "key": "patient_consent_valid",
+    "type": "noul",
+    "instructions": "判断患者知情同意书是否有效。",
+    "criteria": {
+      "true": "患者已签署有效的知情同意书，医生已充分告知风险",
+      "false": "未获得有效知情同意或告知不充分"
+    }
+  },
+  {
+    "key": "treatment_compliant",
+    "type": "choice",
+    "instructions": "判断治疗方案是否符合医疗规范。",
+    "criteria": {
+      "compliant": "治疗方案符合临床指南和标准",
+      "non-compliant": "治疗方案明显违反临床指南",
+      "needs-review": "治疗方案处于灰色地带，需要专家会诊"
+    }
+  },
+  {
+    "key": "medical_record_complete",
+    "type": "noul",
+    "instructions": "判断病历记录是否完整。",
+    "criteria": {
+      "true": "病历记录完整、准确、及时",
+      "false": "病历记录存在缺失或错误"
+    }
+  },
+  {
+    "key": "prescription_risk_level",
+    "type": "score",
+    "instructions": "评估处方用药的风险等级。",
+    "criteria": [
+      "低风险",
+      "中等风险",
+      "高风险",
+      "极高风险"
+    ]
+  },
+  {
+    "key": "infection_control_compliant",
+    "type": "noul",
+    "instructions": "判断感染控制措施是否符合规范。",
+    "criteria": {
+      "true": "感染控制措施符合规范",
+      "false": "感染控制措施存在缺陷"
+    }
+  },
+  {
+    "key": "patient_safety_incident",
+    "type": "noul",
+    "instructions": "判断是否发生了患者安全事件。",
+    "criteria": {
+      "true": "发生了可预防的患者伤害事件",
+      "false": "未发生可预防的患者伤害事件"
+    }
+  },
+  {
+    "key": "emergency_readiness_score",
+    "type": "score",
+    "instructions": "评估急诊准备程度。",
+    "criteria": [
+      "完全准备",
+      "基本准备",
+      "部分准备",
+      "准备不足"
+    ]
+  },
+  {
+    "key": "discharge_planning_adequate",
+    "type": "noul",
+    "instructions": "判断出院计划是否充分。",
+    "criteria": {
+      "true": "出院计划充分考虑了患者后续护理需求",
+      "false": "出院计划不充分"
+    }
+  }
+]

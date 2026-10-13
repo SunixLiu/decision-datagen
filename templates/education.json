@@ -1,0 +1,79 @@
+[
+  {
+    "key": "plagiarism_detected",
+    "type": "noul",
+    "instructions": "判断是否存在抄袭行为。",
+    "criteria": {
+      "true": "作品包含未正确引用的他人内容",
+      "false": "作品为原创或已正确引用"
+    }
+  },
+  {
+    "key": "assignment_compliance",
+    "type": "choice",
+    "instructions": "判断作业提交是否符合要求。",
+    "criteria": {
+      "compliant": "作业符合所有提交要求",
+      "non-compliant": "作业明显不符合要求",
+      "needs-review": "处于灰色地带，需要人工判断"
+    }
+  },
+  {
+    "key": "academic_integrity_violation",
+    "type": "noul",
+    "instructions": "判断是否违反学术诚信规定。",
+    "criteria": {
+      "true": "存在作弊、代写、抄袭等违规行为",
+      "false": "无学术不端行为"
+    }
+  },
+  {
+    "key": "grading_fairness",
+    "type": "score",
+    "instructions": "评估评分的公平程度。",
+    "criteria": [
+      "完全公平",
+      "基本公平",
+      "部分不公平",
+      "明显不公平"
+    ]
+  },
+  {
+    "key": "special_needs_accommodation",
+    "type": "noul",
+    "instructions": "判断是否提供了适当的学习障碍 accommodations。",
+    "criteria": {
+      "true": "已提供符合规定的学习障碍支持",
+      "false": "未提供或支持不足"
+    }
+  },
+  {
+    "key": "attendance_compliant",
+    "type": "noul",
+    "instructions": "判断出勤情况是否符合规定。",
+    "criteria": {
+      "true": "出勤符合学校规定",
+      "false": "出勤不符合规定"
+    }
+  },
+  {
+    "key": "behavioral_concern",
+    "type": "noul",
+    "instructions": "判断学生是否存在行为问题。",
+    "criteria": {
+      "true": "存在需要干预的行为问题",
+      "false": "无明显行为问题"
+    }
+  },
+  {
+    "key": "learning_outcome_achievement",
+    "type": "score",
+    "instructions": "评估学习成果达成程度。",
+    "criteria": [
+      "完全达成",
+      "基本达成",
+      "部分达成",
+      "未达成"
+    ]
+  }
+]

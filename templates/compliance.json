@@ -1,0 +1,506 @@
+[
+  {
+    "key": "account_compliant",
+    "type": "choice",
+    "instructions": "判断该账户开立流程是否符合公司合规政策。",
+    "criteria": {
+      "compliant": "所有开户文件齐全，KYC/AML 验证通过，适当性评估完成，Form ADV 已披露",
+      "non-compliant": "缺少必要文件或验证步骤，存在明显违规",
+      "needs-review": "处于灰色地带，需要人工复核"
+    },
+    "facts": {
+      "field": "account_opening.status",
+      "rule": {
+        "op": "identity"
+      }
+    },
+    "policy_keywords": [
+      "Account Opening",
+      "KYC",
+      "Form ADV"
+    ]
+  },
+  {
+    "key": "aml_high_risk",
+    "type": "noul",
+    "instructions": "判断该客户是否构成高洗钱风险。",
+    "criteria": {
+      "true": "存在多项 AML 红旗指标",
+      "false": "无显著 AML 风险"
+    },
+    "facts": {
+      "field": "risk_indicators.aml_flags",
+      "rule": {
+        "op": "count_gte",
+        "value": 2
+      }
+    },
+    "policy_keywords": [
+      "Anti Money Laundering",
+      "KYC"
+    ]
+  },
+  {
+    "key": "suitability_score",
+    "type": "score",
+    "instructions": "评估投资建议与客户需求及风险承受能力的匹配程度。",
+    "criteria": [
+      "完全不匹配",
+      "部分匹配但存在重大偏差",
+      "基本匹配",
+      "完全匹配"
+    ],
+    "facts": {
+      "field": "investment.suitability_level",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "none": 0,
+          "partial": 1,
+          "basic": 2,
+          "full": 3
+        }
+      }
+    },
+    "policy_keywords": [
+      "Suitability",
+      "Portfolio Management"
+    ]
+  },
+  {
+    "key": "best_execution_achieved",
+    "type": "choice",
+    "instructions": "判断该交易是否实现了最佳执行。",
+    "criteria": {
+      "yes": "交易价格优于或等于市场最优价，执行及时",
+      "no": "交易价格明显劣于市场最优价，或执行存在不当延迟",
+      "partially": "部分条件满足最佳执行要求"
+    },
+    "facts": {
+      "field": "execution.result",
+      "rule": {
+        "op": "identity"
+      }
+    },
+    "policy_keywords": [
+      "Best Execution",
+      "Trading"
+    ]
+  },
+  {
+    "key": "trade_suitable",
+    "type": "noul",
+    "instructions": "判断该笔交易是否适合该客户的投资组合。",
+    "criteria": {
+      "true": "交易与客户的投资目标、风险承受能力和限制一致",
+      "false": "交易与客户的不匹配可能损害其利益"
+    },
+    "facts": {
+      "field": "trade.matches_client_profile",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Suitability",
+      "Trading"
+    ]
+  },
+  {
+    "key": "trade_error_severity",
+    "type": "score",
+    "instructions": "评估交易错误的严重程度。",
+    "criteria": [
+      "无错误",
+      "轻微错误，可内部纠正",
+      "中等错误，需要报告",
+      "严重错误，需要立即行动"
+    ],
+    "facts": {
+      "field": "trade_error.severity",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "none": 0,
+          "minor": 1,
+          "moderate": 2,
+          "severe": 3
+        }
+      }
+    },
+    "policy_keywords": [
+      "Trade Error",
+      "Trading"
+    ]
+  },
+  {
+    "key": "privacy_breach",
+    "type": "noul",
+    "instructions": "判断是否发生了隐私泄露事件。",
+    "criteria": {
+      "true": "个人客户信息被未经授权访问、收集、使用或披露",
+      "false": "未发生隐私泄露"
+    },
+    "facts": {
+      "field": "incident.breach_occurred",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Privacy Policy",
+      "Information Security"
+    ]
+  },
+  {
+    "key": "cybersecurity_severity",
+    "type": "score",
+    "instructions": "评估网络安全事件的严重程度。",
+    "criteria": [
+      "无安全事件",
+      "低风险，已及时修复",
+      "中等风险，需要监控",
+      "高风险，需要立即响应"
+    ],
+    "facts": {
+      "field": "cyber_event.severity",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "none": 0,
+          "low": 1,
+          "medium": 2,
+          "high": 3
+        }
+      }
+    },
+    "policy_keywords": [
+      "Cybersecurity",
+      "Information Security"
+    ]
+  },
+  {
+    "key": "breach_reportable",
+    "type": "noul",
+    "instructions": "判断该隐私泄露事件是否需要向客户和监管机构报告。",
+    "criteria": {
+      "true": "事件达到需要报告的阈值",
+      "false": "事件未达到报告阈值"
+    },
+    "facts": {
+      "field": "incident.report_threshold_met",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Privacy Policy",
+      "Breach Notification"
+    ]
+  },
+  {
+    "key": "fraudulent_transfer",
+    "type": "noul",
+    "instructions": "判断该转账请求是否可能是欺诈。",
+    "criteria": {
+      "true": "存在多项欺诈红旗指标",
+      "false": "无明显欺诈迹象"
+    },
+    "facts": {
+      "field": "transfer.fraud_flags",
+      "rule": {
+        "op": "count_gte",
+        "value": 2
+      }
+    },
+    "policy_keywords": [
+      "Fraudulent Transfers",
+      "Identity Theft"
+    ]
+  },
+  {
+    "key": "transfer_risk_level",
+    "type": "score",
+    "instructions": "评估转账请求的风险等级。",
+    "criteria": [
+      "低风险",
+      "中等风险",
+      "高风险",
+      "极高风险"
+    ],
+    "facts": {
+      "field": "transfer.risk_level",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "low": 0,
+          "medium": 1,
+          "high": 2,
+          "extreme": 3
+        }
+      }
+    },
+    "policy_keywords": [
+      "Fraudulent Transfers",
+      "AML"
+    ]
+  },
+  {
+    "key": "complaint_valid",
+    "type": "noul",
+    "instructions": "判断客户投诉是否成立。",
+    "criteria": {
+      "true": "投诉内容属实，公司存在不当行为",
+      "false": "投诉内容不属实或无依据"
+    },
+    "facts": {
+      "field": "complaint.substantiated",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Complaints",
+      "Disputes"
+    ]
+  },
+  {
+    "key": "complaint_severity",
+    "type": "score",
+    "instructions": "评估客户投诉的严重程度。",
+    "criteria": [
+      "轻微，可快速解决",
+      "中等，需要正式调查",
+      "严重，需要高层介入"
+    ],
+    "facts": {
+      "field": "complaint.severity",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "minor": 0,
+          "moderate": 1,
+          "severe": 2
+        }
+      }
+    },
+    "policy_keywords": [
+      "Complaints",
+      "Disputes"
+    ]
+  },
+  {
+    "key": "records_compliant",
+    "type": "noul",
+    "instructions": "判断书籍和记录保存是否符合合规要求。",
+    "criteria": {
+      "true": "记录保存完整、准确、及时，符合五年期要求",
+      "false": "记录存在缺失、错误或未及时保存的情况"
+    },
+    "facts": {
+      "field": "records.complete_and_timely",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Books and Records"
+    ]
+  },
+  {
+    "key": "record_retention_score",
+    "type": "score",
+    "instructions": "评估记录保留的完整性。",
+    "criteria": [
+      "完全保留",
+      "部分保留",
+      "严重缺失"
+    ],
+    "facts": {
+      "field": "records.retention_level",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "full": 0,
+          "partial": 1,
+          "severe": 2
+        }
+      }
+    },
+    "policy_keywords": [
+      "Books and Records",
+      "Retention"
+    ]
+  },
+  {
+    "key": "capacity_concern",
+    "type": "noul",
+    "instructions": "判断客户是否可能出现认知能力减弱的情况。",
+    "criteria": {
+      "true": "存在认知能力减弱的红旗指标",
+      "false": "无明显认知能力减弱迹象"
+    },
+    "facts": {
+      "field": "client.capacity_flags",
+      "rule": {
+        "op": "count_gte",
+        "value": 1
+      }
+    },
+    "policy_keywords": [
+      "Diminished Capacity",
+      "Vulnerable Client"
+    ]
+  },
+  {
+    "key": "vulnerability_level",
+    "type": "score",
+    "instructions": "评估客户的脆弱程度。",
+    "criteria": [
+      "不脆弱",
+      "轻度脆弱",
+      "中度脆弱",
+      "高度脆弱"
+    ],
+    "facts": {
+      "field": "client.vulnerability",
+      "rule": {
+        "op": "map",
+        "mapping": {
+          "none": 0,
+          "low": 1,
+          "medium": 2,
+          "high": 3
+        }
+      }
+    },
+    "policy_keywords": [
+      "Diminished Capacity",
+      "Vulnerable Client"
+    ]
+  },
+  {
+    "key": "advertising_compliant",
+    "type": "noul",
+    "instructions": "判断该广告或宣传材料是否符合合规政策。",
+    "criteria": {
+      "true": "广告内容真实、准确，无误导性陈述",
+      "false": "广告存在误导、夸大或未披露重要信息"
+    },
+    "facts": {
+      "field": "advertising.misleading",
+      "rule": {
+        "op": "eq",
+        "value": false
+      }
+    },
+    "policy_keywords": [
+      "Advertising",
+      "Marketing"
+    ]
+  },
+  {
+    "key": "correspondence_violation",
+    "type": "noul",
+    "instructions": "判断该通信行为是否违反公司政策。",
+    "criteria": {
+      "true": "使用了未授权的通信渠道或内容",
+      "false": "通信行为符合公司政策"
+    },
+    "facts": {
+      "field": "correspondence.unauthorized_channel_used",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Correspondence",
+      "Email"
+    ]
+  },
+  {
+    "key": "fiduciary_duty_breach",
+    "type": "noul",
+    "instructions": "判断是否存在违反信义义务的情况。",
+    "criteria": {
+      "true": "存在利益冲突、自我交易或未尽勤勉义务",
+      "false": "已尽到信义义务"
+    },
+    "facts": {
+      "field": "fiduciary.conflict_of_interest_present",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Fiduciary Duty",
+      "Conflicts of Interest"
+    ]
+  },
+  {
+    "key": "erisa_violation",
+    "type": "noul",
+    "instructions": "判断该交易是否违反 ERISA 禁止性交易规定。",
+    "criteria": {
+      "true": "交易涉及禁止的关联方交易",
+      "false": "交易不违反 ERISA 规定"
+    },
+    "facts": {
+      "field": "transaction.prohibited_party_transaction",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "ERISA",
+      "Prohibited Transaction"
+    ]
+  },
+  {
+    "key": "registration_compliant",
+    "type": "noul",
+    "instructions": "判断公司注册和许可状态是否合规。",
+    "criteria": {
+      "true": "所有必要注册和许可均有效",
+      "false": "存在未注册或许可过期的情况"
+    },
+    "facts": {
+      "field": "registration.all_licenses_valid",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Registration and Licensing",
+      "Form ADV"
+    ]
+  },
+  {
+    "key": "bcp_adequate",
+    "type": "noul",
+    "instructions": "判断业务连续性计划是否充分。",
+    "criteria": {
+      "true": "BCP 覆盖关键业务功能并有测试记录",
+      "false": "BCP 存在重大缺陷或未进行测试"
+    },
+    "facts": {
+      "field": "bcp.tested_and_covers_critical_functions",
+      "rule": {
+        "op": "eq",
+        "value": true
+      }
+    },
+    "policy_keywords": [
+      "Business Continuity"
+    ]
+  }
+]

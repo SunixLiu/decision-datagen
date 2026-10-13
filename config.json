@@ -1,0 +1,18 @@
+{
+  "_comment": "三个独立模型配置：状态生成、教师预测、金标准确定",
+  "state_model": {
+    "name": "Qwen3.6-35B-A3B",
+    "api_key": "",
+    "base_url": "http://127.0.0.1:8001/v1"
+  },
+  "teacher_model": {
+    "name": "Qwen3.6-35B-A3B",
+    "api_key": "",
+    "base_url": "http://127.0.0.1:8001/v1"
+  },
+  "gold_model": {
+    "name": "Qwen3.6-35B-A3B",
+    "api_key": "",
+    "base_url": "http://127.0.0.1:8001/v1"
+  }
+}
