@@ -20,6 +20,8 @@ dataset*.json
 dataset*.jsonl
 finetune_smoke.jsonl
 sample-code.txt
+convert_for_finetune.py
+tests/test_convert.py
 check_gold.py
 fix_gold_answer*.py
 update_prompt.py

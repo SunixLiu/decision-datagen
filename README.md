@@ -34,6 +34,7 @@
 - choice 类型 teacher：probabilities 以选项名为键；noul 类型 teacher：`{"noul": float}`。
 - `generator`: `v1-{domain}`（如 `v1-compliance`）。
 - 双输出：JSON 数组文件（如 `dataset_50.json`）+ 增量 JSONL（`dataset_50.jsonl`，每行一条样本，用于 resume）。
+- 输出即目标微调数据格式（与参考文件逐字段对齐），按该格式消费的训练管线可直接使用，无需额外转换。
 
 ## 三步流程
 
@@ -67,11 +68,10 @@ python generate_dataset.py --pdf <政策文档路径>.pdf --domain compliance --
 - `--ensemble-n`: teacher 采样次数取均值；3 = 参考文件的 "x3 mean"
 - `--resume`: 从已有 JSONL 继续生成到 target（已完成样本不重复生成）
 
-### 第三步：评估与转换
+### 第三步：评估
 
 ```bash
 python evaluate_dataset.py --input dataset_50.json
-python convert_for_finetune.py --input dataset_50.json --output finetune_data.jsonl
 ```
 
 ## 三模型架构
@@ -111,7 +111,6 @@ python convert_for_finetune.py --input dataset_50.json --output finetune_data.js
 | `generate_dataset.py` | 主程序：三模型架构、多领域支持、配置驱动 |
 | `generate_config.py` | 第一步：从政策文档生成配置文件 + 文档驱动问题模板 |
 | `evaluate_dataset.py` | 评估数据集质量（Schema 校验、类型分布、gold/teacher 一致率） |
-| `convert_for_finetune.py` | 转换为 OpenAI fine-tuning JSONL 格式 |
 | `llm_client.py` | OpenAI 兼容 LLM 客户端（chat/chat_json，重试与 JSON 提取） |
 | `template_store.py` | 按领域加载/保存问题模板（`templates/{domain}.json`，按 key 去重合并） |
 | `gold_rules.py` | 从 state 内置事实确定性推导 gold（identity/map/count_gte/gte/lte/eq/in） |
@@ -134,9 +133,6 @@ python generate_dataset.py --pdf <政策文档路径>.pdf --target 10 --domain c
 
 # 3. 评估数据集
 python evaluate_dataset.py --input dataset_10.json
-
-# 4. 转换为 fine-tuning 格式
-python convert_for_finetune.py --input dataset_10.json --output finetune_data.jsonl
 ```
 
 ## 输出示例
