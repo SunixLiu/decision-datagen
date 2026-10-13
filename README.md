@@ -36,6 +36,21 @@
 - 双输出：JSON 数组文件（如 `dataset_50.json`）+ 增量 JSONL（`dataset_50.jsonl`，每行一条样本，用于 resume）。
 - 输出即目标微调数据格式（与参考文件逐字段对齐），按该格式消费的训练管线可直接使用，无需额外转换。
 
+## 面向的模型类型与微调对接
+
+本数据集面向 **System One / Jev 风格决策模型**（encoder + 决策头架构，如开源的 [Laya](https://github.com/datawhalechina/jev-cookbook)），**不是对话式 SFT 数据**：这类模型接收 state + 类型化问题，直接输出概率分布，不做文本生成、无需解析。
+
+字段与训练 schema 的对应关系（详见 [Jev Cookbook 第 10 章 FINETUNING.md](https://github.com/datawhalechina/jev-cookbook/blob/main/main/10_%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B/FINETUNING.md)）：
+
+| 本数据集字段 | 训练 schema | 说明 |
+|---|---|---|
+| `state` | `state` | 决策时可见的状态 |
+| `questions` | `qs` | 类型化问题（choice/noul/score），一题只问一件事 |
+| `gold` | `y` | 确定性标签（choice=选项名、score=候选索引、noul=bool），训练侧按自身 schema 映射为索引/0-1 |
+| `teacher` | `soft` | 软目标概率分布，用于 masked soft cross-entropy 训练 |
+
+同 schema 的公开基准数据集：[LocalLLaMA/typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions)（一条 state 同时回答多道类型化问题，每个答案都是概率分布）。
+
 ## 三步流程
 
 ### 第一步：生成配置文件与问题模板
