@@ -1,6 +1,6 @@
 # 决策型模型训练数据集生成程序
 
-基于政策文档（如 `docsrc/Compliance-Manual-2018.pdf` 合规手册），生成 Jev 三原语（choice/noul/score）类型的结构化决策训练数据。
+基于用户提供的政策文档（PDF，如合规手册、员工手册），生成 Jev 三原语（choice/noul/score）类型的结构化决策训练数据。
 
 ## 目标格式
 
@@ -42,7 +42,7 @@
 使用 `generate_config.py` 根据政策文档生成领域配置文件，并调用 LLM 一次生成文档驱动的问题模板，追加到 `templates/{domain}.json`（按 key 去重）：
 
 ```bash
-python generate_config.py --pdf docsrc/Compliance-Manual-2018.pdf --domain compliance
+python generate_config.py --pdf <政策文档路径>.pdf --domain compliance
 ```
 
 输出：
@@ -52,7 +52,7 @@ python generate_config.py --pdf docsrc/Compliance-Manual-2018.pdf --domain compl
 离线模式（跳过 LLM 模板生成，仅生成配置文件）：
 
 ```bash
-python generate_config.py --pdf docsrc/Compliance-Manual-2018.pdf --domain compliance --skip-templates
+python generate_config.py --pdf <政策文档路径>.pdf --domain compliance --skip-templates
 ```
 
 ### 第二步：生成数据集
@@ -60,7 +60,7 @@ python generate_config.py --pdf docsrc/Compliance-Manual-2018.pdf --domain compl
 使用 `generate_dataset.py` 加载配置文件并生成训练数据：
 
 ```bash
-python generate_dataset.py --pdf docsrc/Compliance-Manual-2018.pdf --domain compliance --target 50 --output dataset_50.json [--resume] [--concurrency N] [--ensemble-n N]
+python generate_dataset.py --pdf <政策文档路径>.pdf --domain compliance --target 50 --output dataset_50.json [--resume] [--concurrency N] [--ensemble-n N]
 ```
 
 - `--concurrency`: 并发 worker 数，默认 1（测试环境 LLM 仅支持顺序调用，保持 1）
@@ -122,17 +122,15 @@ python convert_for_finetune.py --input dataset_50.json --output finetune_data.js
 | `scripts/split_templates.py` | 将旧 `question_templates.json` 拆分为 `templates/` 各领域文件 |
 | `tests/` | 单元测试（gold_rules、template_store、teacher、Schema 校验等） |
 | `config.json` | 三个独立 LLM 端点配置 |
-| `docsrc/Compliance-Manual-2018.pdf` | 合规手册源文件 |
-| `docsrc/Compliance-Manual-2018.txt` | 提取的文本（自动生成） |
 
 ## 使用示例
 
 ```bash
 # 1. 生成配置文件 + 文档驱动模板
-python generate_config.py --pdf docsrc/Compliance-Manual-2018.pdf --domain compliance
+python generate_config.py --pdf <政策文档路径>.pdf --domain compliance
 
 # 2. 生成数据集
-python generate_dataset.py --target 10 --domain compliance --output dataset_10.json
+python generate_dataset.py --pdf <政策文档路径>.pdf --target 10 --domain compliance --output dataset_10.json
 
 # 3. 评估数据集
 python evaluate_dataset.py --input dataset_10.json
@@ -187,7 +185,7 @@ python convert_for_finetune.py --input dataset_10.json --output finetune_data.js
 
 3. **生成配置并测试**：
    ```bash
-   python generate_config.py --domain finance --pdf docsrc/Finance-Manual.pdf
+   python generate_config.py --domain finance --pdf <财务手册路径>.pdf
    python generate_dataset.py --target 10 --domain finance --output dataset_finance_10.json
    ```
 
