@@ -1,156 +1,158 @@
-# 决策型模型训练数据集生成程序
+# Decision Model Training Dataset Generator
 
-基于用户提供的政策文档（PDF，如合规手册、员工手册），生成 Jev 三原语（choice/noul/score）类型的结构化决策训练数据。
+Generates structured decision training data in the Jev three-primitive format (choice/noul/score) from a user-supplied policy document (PDF, e.g. a compliance manual or employee handbook).
 
-## 目标格式
+中文文档: [README_zh.md](README_zh.md)
 
-参考文件：`sql-console-for-n4ze3m-typed-decisions-synth.json`
+## Target Format
 
-每条样本包含：
-- `state_id`: 唯一标识
-- `generator`: 生成器版本
-- `domain`: 领域名称
-- `n_questions`: 问题数量
-- `state`: JSON 字符串格式的状态描述
-- `state_is_json`: 是否为 JSON
-- `questions`: 问题定义（type/criteria/instructions）
-- `gold`: 金标准答案（deterministic）
-- `teacher`: 教师模型概率化预测
-- `teacher_model`: 教师模型名称
+Reference file: `sql-console-for-n4ze3m-typed-decisions-synth.json`
 
-### Jev 三原语类型
+Each sample contains:
+- `state_id`: unique identifier
+- `generator`: generator version
+- `domain`: domain name
+- `n_questions`: number of questions
+- `state`: state description as a JSON string
+- `state_is_json`: whether the state is JSON
+- `questions`: question definitions (type/criteria/instructions)
+- `gold`: deterministic gold answer
+- `teacher`: teacher model probabilistic prediction
+- `teacher_model`: teacher model name
 
-| 类型 | 说明 | Gold 格式 | Teacher 格式 |
-|------|------|-----------|--------------|
-| choice | 多选一决策 | 选项名称 | `{"probabilities": {"option1": 0.7, ...}}` |
-| noul | 是非判断 | true/false | `{"noul": 0.8}` |
-| score | 等级评分 | 索引/名称 | `{"probabilities": {"low": 0.2, ...}}` |
+### Jev Three Primitive Types
 
-## 输出格式
+| Type | Description | Gold format | Teacher format |
+|------|-------------|-------------|----------------|
+| choice | Pick-one decision | option name | `{"probabilities": {"option1": 0.7, ...}}` |
+| noul | yes/no judgment | true/false | `{"noul": 0.8}` |
+| score | ordinal rating | index/name | `{"probabilities": {"low": 0.2, ...}}` |
 
-- `questions` / `gold` / `teacher` 均为 **JSON 字符串**（非嵌套对象），需 `json.loads` 解析。
-- score 类型 gold：criteria 列表的整数索引（0 起）。
-- score 类型 teacher：probabilities 以索引字符串为键（`"0"`、`"1"`、...），总和归一化为 1.0。
-- choice 类型 teacher：probabilities 以选项名为键；noul 类型 teacher：`{"noul": float}`。
-- `generator`: `v1-{domain}`（如 `v1-compliance`）。
-- 双输出：JSON 数组文件（如 `dataset_50.json`）+ 增量 JSONL（`dataset_50.jsonl`，每行一条样本，用于 resume）。
-- 输出即目标微调数据格式（与参考文件逐字段对齐），按该格式消费的训练管线可直接使用，无需额外转换。
+## Output Format
 
-## 面向的模型类型与微调对接
+- `questions` / `gold` / `teacher` are all **JSON strings** (not nested objects); parse with `json.loads`.
+- score gold: integer index into the criteria list (0-based).
+- score teacher: probabilities keyed by index strings (`"0"`, `"1"`, ...), normalized to sum to 1.0.
+- choice teacher: probabilities keyed by option name; noul teacher: `{"noul": float}`.
+- `generator`: `v1-{domain}` (e.g. `v1-compliance`).
+- Dual output: JSON array file (e.g. `dataset_50.json`) + incremental JSONL (`dataset_50.jsonl`, one sample per line, used for resume).
+- The output is already the target fine-tuning data format (field-aligned with the reference file); training pipelines that consume this format can use it directly, no extra conversion needed.
 
-本数据集面向 **System One / Jev 风格决策模型**（encoder + 决策头架构，如开源的 [Laya](https://github.com/datawhalechina/jev-cookbook)），**不是对话式 SFT 数据**：这类模型接收 state + 类型化问题，直接输出概率分布，不做文本生成、无需解析。
+## Target Model Type & Fine-tuning Integration
 
-字段与训练 schema 的对应关系（详见 [Jev Cookbook 第 10 章 FINETUNING.md](https://github.com/datawhalechina/jev-cookbook/blob/main/main/10_%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B/FINETUNING.md)）：
+This dataset targets **System One / Jev-style decision models** (encoder + decision head architecture, e.g. the open-source [Laya](https://github.com/datawhalechina/jev-cookbook)) — **not conversational SFT data**: such models take a state + typed questions and directly output probability distributions, with no text generation and no parsing.
 
-| 本数据集字段 | 训练 schema | 说明 |
+Field mapping to the training schema (see [Jev Cookbook Chapter 10 FINETUNING.md](https://github.com/datawhalechina/jev-cookbook/blob/main/main/10_%E6%9C%AC%E5%9C%B0%E6%A8%A1%E5%9E%8B/FINETUNING.md)):
+
+| Dataset field | Training schema | Notes |
 |---|---|---|
-| `state` | `state` | 决策时可见的状态 |
-| `questions` | `qs` | 类型化问题（choice/noul/score），一题只问一件事 |
-| `gold` | `y` | 确定性标签（choice=选项名、score=候选索引、noul=bool），训练侧按自身 schema 映射为索引/0-1 |
-| `teacher` | `soft` | 软目标概率分布，用于 masked soft cross-entropy 训练 |
+| `state` | `state` | state visible at decision time |
+| `questions` | `qs` | typed questions (choice/noul/score); one question asks exactly one thing |
+| `gold` | `y` | deterministic label (choice=option name, score=candidate index, noul=bool); the trainer maps it to index/0-1 per its own schema |
+| `teacher` | `soft` | soft target probability distribution, used for masked soft cross-entropy training |
 
-同 schema 的公开基准数据集：[LocalLLaMA/typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions)（一条 state 同时回答多道类型化问题，每个答案都是概率分布）。
+Public benchmark dataset with the same schema: [LocalLLaMA/typed-decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions) (one state answered by multiple typed questions at once; every answer is a probability distribution).
 
-## 三步流程
+## Three-Step Workflow
 
-### 第一步：生成配置文件与问题模板
+### Step 1: Generate Config File and Question Templates
 
-使用 `generate_config.py` 根据政策文档生成领域配置文件，并调用 LLM 一次生成文档驱动的问题模板，追加到 `templates/{domain}.json`（按 key 去重）：
-
-```bash
-python generate_config.py --pdf <政策文档路径>.pdf --domain compliance
-```
-
-输出：
-- `config_compliance.json`：包含 `keywords`（用于提取相关章节的关键词列表）、`state_prompt_template`（状态生成提示语模板）、`document_summary`（文档摘要信息）等
-- `templates/compliance.json`：追加新生成的问题模板（带 facts 规格，按 key 去重）
-
-离线模式（跳过 LLM 模板生成，仅生成配置文件）：
+Use `generate_config.py` to generate the domain config from the policy document, and call the LLM once to generate document-driven question templates, appended to `templates/{domain}.json` (deduplicated by key):
 
 ```bash
-python generate_config.py --pdf <政策文档路径>.pdf --domain compliance --skip-templates
+python generate_config.py --pdf <path-to-policy-doc>.pdf --domain compliance
 ```
 
-### 第二步：生成数据集
+Outputs:
+- `config_compliance.json`: contains `keywords` (keyword list for extracting relevant sections), `state_prompt_template` (state generation prompt template), `document_summary` (document summary), etc.
+- `templates/compliance.json`: newly generated question templates appended (with facts specs, deduplicated by key)
 
-使用 `generate_dataset.py` 加载配置文件并生成训练数据：
+Offline mode (skip LLM template generation, config only):
 
 ```bash
-python generate_dataset.py --pdf <政策文档路径>.pdf --domain compliance --target 50 --output dataset_50.json [--resume] [--concurrency N] [--ensemble-n N]
+python generate_config.py --pdf <path-to-policy-doc>.pdf --domain compliance --skip-templates
 ```
 
-- `--concurrency`: 并发 worker 数，默认 1（测试环境 LLM 仅支持顺序调用，保持 1）
-- `--ensemble-n`: teacher 采样次数取均值；3 = 参考文件的 "x3 mean"
-- `--resume`: 从已有 JSONL 继续生成到 target（已完成样本不重复生成）
+### Step 2: Generate the Dataset
 
-### 第三步：评估
+Use `generate_dataset.py` to load the config and generate training data:
+
+```bash
+python generate_dataset.py --pdf <path-to-policy-doc>.pdf --domain compliance --target 50 --output dataset_50.json [--resume] [--concurrency N] [--ensemble-n N]
+```
+
+- `--concurrency`: number of concurrent workers, default 1 (keep at 1 if your LLM server only supports sequential calls)
+- `--ensemble-n`: number of teacher samples averaged; 3 = the reference file's "x3 mean"
+- `--resume`: continue from an existing JSONL up to target (already-completed samples are not regenerated)
+
+### Step 3: Evaluate
 
 ```bash
 python evaluate_dataset.py --input dataset_50.json
 ```
 
-## 三模型架构
+## Three-Model Architecture
 
-程序使用三个独立配置的 LLM：
+The program uses three independently configured LLMs:
 
-| 模型 | 用途 | 配置项 |
-|------|------|--------|
-| state_model | 生成场景状态 | `state_model.name`, `state_model.api_key`, `state_model.base_url` |
-| teacher_model | 提供概率化预测 | `teacher_model.name`, `teacher_model.api_key`, `teacher_model.base_url` |
-| gold_model | 确定金标准答案 | `gold_model.name`, `gold_model.api_key`, `gold_model.base_url` |
+| Model | Purpose | Config keys |
+|-------|---------|-------------|
+| state_model | generates scenario states | `state_model.name`, `state_model.api_key`, `state_model.base_url` |
+| teacher_model | provides probabilistic predictions | `teacher_model.name`, `teacher_model.api_key`, `teacher_model.base_url` |
+| gold_model | determines gold answers | `gold_model.name`, `gold_model.api_key`, `gold_model.base_url` |
 
-配置文件见 `config.json`，支持环境变量覆盖（`STATE_MODEL_NAME`, `TEACHER_API_KEY`, `GOLD_BASE_URL` 等）。
+See `config.json`; environment variable overrides are supported (`STATE_MODEL_NAME`, `TEACHER_API_KEY`, `GOLD_BASE_URL`, etc.).
 
-## 三模型使用建议
+## Model Usage Recommendations
 
-- **state_model**（场景状态生成）：可用较小的模型——只需按提示词产出结构化场景状态。
-- **teacher_model / gold_model**（概率化预测与金标准）：实际使用中建议使用更大/更强的模型，以保证预测质量与答案可靠性。
-- `--ensemble-n 3` 对应参考文件的 "x3 mean"：采样 3 次取概率均值。
+- **state_model** (scenario state generation): a smaller model is fine — it only needs to produce structured scenario states from the prompt.
+- **teacher_model / gold_model** (probabilistic prediction and gold answers): use a larger/stronger model in practice, to guarantee prediction quality and answer reliability.
+- `--ensemble-n 3` corresponds to the reference file's "x3 mean": sample 3 times and average the probabilities.
 
-## 多领域支持
+## Multi-Domain Support
 
-内置 60+ 个 Jev 三原语问题模板，覆盖多个领域：
+60+ built-in Jev three-primitive question templates across multiple domains:
 
-| 领域 | 模板数 | 关键主题 |
-|------|--------|----------|
-| compliance | 23 | 账户开立、反洗钱、交易执行、隐私、欺诈、投诉、记录、认知能力、广告、ERISA、注册、业务连续性 |
-| healthcare | 8 | 患者 consent、治疗方案、病历、处方风险、感染控制、患者安全、急诊、出院计划 |
-| education | 8 | 抄袭、作业合规、学术诚信、评分公平、特殊需求、出勤、行为、学习成果 |
-| e-commerce | 8 | 商品发布、退货、卖家合规、评价真实性、支付欺诈、发货、退款、纠纷 |
-| hr | 18 | 入职合规、绩效评估、骚扰投诉、请假审批、薪酬合规、离职程序、培训、行为准则、远程办公、数据隐私、加班、职场安全、招聘偏见、晋升公平、福利、员工敬业度、利益冲突、纪律处分 |
+| Domain | Templates | Key topics |
+|--------|-----------|------------|
+| compliance | 23 | account opening, AML, trade execution, privacy, fraud, complaints, records, cognitive ability, advertising, ERISA, registration, business continuity |
+| healthcare | 8 | patient consent, treatment plans, medical records, prescription risk, infection control, patient safety, emergency care, discharge planning |
+| education | 8 | plagiarism, assignment compliance, academic integrity, grading fairness, special needs, attendance, behavior, learning outcomes |
+| e-commerce | 8 | product listing, returns, seller compliance, review authenticity, payment fraud, shipping, refunds, disputes |
+| hr | 18 | onboarding compliance, performance review, harassment complaints, leave approval, payroll compliance, offboarding, training, code of conduct, remote work, data privacy, overtime, workplace safety, hiring bias, promotion fairness, benefits, engagement, conflicts of interest, discipline |
 
-## 程序结构
+## Program Structure
 
-| 文件 | 说明 |
-|------|------|
-| `generate_dataset.py` | 主程序：三模型架构、多领域支持、配置驱动 |
-| `generate_config.py` | 第一步：从政策文档生成配置文件 + 文档驱动问题模板 |
-| `evaluate_dataset.py` | 评估数据集质量（Schema 校验、类型分布、gold/teacher 一致率） |
-| `llm_client.py` | OpenAI 兼容 LLM 客户端（chat/chat_json，重试与 JSON 提取） |
-| `template_store.py` | 按领域加载/保存问题模板（`templates/{domain}.json`，按 key 去重合并） |
-| `gold_rules.py` | 从 state 内置事实确定性推导 gold（identity/map/count_gte/gte/lte/eq/in） |
-| `teacher.py` | teacher 概率预测的校验、归一化与 ensemble 均值 |
-| `config_loader.py` | 三模型端点配置加载（config.json + 环境变量覆盖） |
-| `templates/{domain}.json` | 各领域问题模板（**当前唯一事实来源**；compliance 23 个等） |
-| `question_templates.json` | 迁移前备份（旧格式），不再被程序读取 |
-| `scripts/split_templates.py` | 将旧 `question_templates.json` 拆分为 `templates/` 各领域文件 |
-| `tests/` | 单元测试（gold_rules、template_store、teacher、Schema 校验等） |
-| `config.json` | 三个独立 LLM 端点配置 |
+| File | Description |
+|------|-------------|
+| `generate_dataset.py` | main program: three-model architecture, multi-domain support, config-driven |
+| `generate_config.py` | step 1: generate config + document-driven question templates from the policy document |
+| `evaluate_dataset.py` | dataset quality evaluation (schema validation, type distribution, gold/teacher agreement) |
+| `llm_client.py` | OpenAI-compatible LLM client (chat/chat_json, retries and JSON extraction) |
+| `template_store.py` | per-domain template load/save (`templates/{domain}.json`, deduplicated merge by key) |
+| `gold_rules.py` | deterministic gold derivation from state-embedded facts (identity/map/count_gte/gte/lte/eq/in) |
+| `teacher.py` | teacher probability validation, normalization and ensemble averaging |
+| `config_loader.py` | three-model endpoint config loading (config.json + env var overrides) |
+| `templates/{domain}.json` | per-domain question templates (**the single source of truth**; e.g. 23 for compliance) |
+| `question_templates.json` | pre-migration backup (old format), no longer read by the program |
+| `scripts/split_templates.py` | splits the old `question_templates.json` into per-domain `templates/` files |
+| `tests/` | unit tests (gold_rules, template_store, teacher, schema validation, etc.) |
+| `config.json` | three independent LLM endpoint configs |
 
-## 使用示例
+## Usage Example
 
 ```bash
-# 1. 生成配置文件 + 文档驱动模板
-python generate_config.py --pdf <政策文档路径>.pdf --domain compliance
+# 1. Generate config + document-driven templates
+python generate_config.py --pdf <path-to-policy-doc>.pdf --domain compliance
 
-# 2. 生成数据集
-python generate_dataset.py --pdf <政策文档路径>.pdf --target 10 --domain compliance --output dataset_10.json
+# 2. Generate the dataset
+python generate_dataset.py --pdf <path-to-policy-doc>.pdf --target 10 --domain compliance --output dataset_10.json
 
-# 3. 评估数据集
+# 3. Evaluate the dataset
 python evaluate_dataset.py --input dataset_10.json
 ```
 
-## 输出示例
+## Output Example
 
 ```json
 {
@@ -160,26 +162,26 @@ python evaluate_dataset.py --input dataset_10.json
   "n_questions": 3,
   "state": "{\"description\": \"...\", \"client_info\": {...}, ...}",
   "state_is_json": true,
-  "questions": "{\"account_compliant\": {\"type\": \"choice\", \"instructions\": \"判断该账户开立流程是否符合公司合规政策。\", \"criteria\": {\"compliant\": \"...\", \"non-compliant\": \"...\", \"needs-review\": \"...\"}}}",
+  "questions": "{\"account_compliant\": {\"type\": \"choice\", \"instructions\": \"Determine whether this account opening process complies with company compliance policy.\", \"criteria\": {\"compliant\": \"...\", \"non-compliant\": \"...\", \"needs-review\": \"...\"}}}",
   "gold": "{\"account_compliant\": \"compliant\"}",
   "teacher": "{\"account_compliant\": {\"probabilities\": {\"compliant\": 0.95, \"non-compliant\": 0.03, \"needs-review\": 0.02}}}",
   "teacher_model": "Qwen3.6-35B-A3B"
 }
 ```
 
-注意：`questions` / `gold` / `teacher` 是 **JSON 字符串**（如上所示），消费方需 `json.loads` 解析。
+Note: `questions` / `gold` / `teacher` are **JSON strings** (as shown above); consumers must parse them with `json.loads`.
 
-### 如何新增领域
+### How to Add a New Domain
 
-要添加新领域（例如 "finance"），需要修改以下文件：
+To add a new domain (e.g. "finance"), modify the following:
 
-1. **`templates/finance.json`** - 新建该领域的 Jev 三原语问题模板列表（每个模板必须带 `facts` 规格，否则不参与问题选择）：
+1. **`templates/finance.json`** — create the Jev three-primitive question template list for the domain (every template must carry a `facts` spec, otherwise it does not participate in question selection):
    ```json
    [
      {
        "key": "loan_approval",
        "type": "choice",
-       "instructions": "判断贷款申请是否符合审批标准。",
+       "instructions": "Determine whether the loan application meets approval criteria.",
        "criteria": {"approved": "...", "rejected": "...", "needs-review": "..."},
        "facts": {"field": "loan.status", "rule": {"op": "identity"}},
        "policy_keywords": ["Loan Approval", "Credit"]
@@ -187,38 +189,38 @@ python evaluate_dataset.py --input dataset_10.json
    ]
    ```
 
-2. **`generate_config.py`** - 在以下几个地方添加领域特定信息：
-   - `domain_keywords` 字典：添加该领域的关键词列表
-   - `domain_field_names` 字典：添加状态字典的字段名称
-   - `default_decision_points` 字典：添加默认决策点
-   - `domain_names` 字典：添加领域显示名称和文档名称
-   - `domain_keywords_for_extraction` 字典：添加用于章节提取的关键词
+2. **`generate_config.py`** — add domain-specific information in the following places:
+   - `domain_keywords` dict: keyword list for the domain
+   - `domain_field_names` dict: field names of the state dictionary
+   - `default_decision_points` dict: default decision points
+   - `domain_names` dict: display name and document name of the domain
+   - `domain_keywords_for_extraction` dict: keywords used for section extraction
 
-3. **生成配置并测试**：
+3. **Generate config and test**:
    ```bash
-   python generate_config.py --domain finance --pdf <财务手册路径>.pdf
+   python generate_config.py --domain finance --pdf <path-to-finance-manual>.pdf
    python generate_dataset.py --target 10 --domain finance --output dataset_finance_10.json
    ```
 
-# 注意事项
+# Notes
 
-1. 生成大量样本时需要较长时间，建议分批运行（每批 5-10 条）
-2. 确保 LLM 服务器正常运行且模型可用
-3. 生成的数据仅用于训练目的，需人工审核后再用于生产
-4. 程序默认提取政策文档中与决策最相关的章节（约 30K 字符）
-5. 每个样本包含 3-4 个随机选择的问题，覆盖不同领域
-6. 教师模型使用 Qwen3.6-35B-A3B，temperature=0.3 以获取概率化预测
-7. gold 由规则从 state 内置事实确定性推导；某问题无法推导时跳过该问题，若整条样本无可推导问题则丢弃并计入降级次数
-8. `--resume` 可从已有 JSONL 继续生成到 target（已完成样本不重复生成）
-9. 状态生成连续失败 3 次时程序中止，已完成部分保留在 JSONL 中，可用 `--resume` 续跑
-10. 无法产出任何问题的样本会计入"降级"次数（完成行会报告降级次数），不写入数据集
-11. 不带 facts 规格的模板不参与问题选择（仅带 facts 的模板进入采样池）
+1. Generating large sample counts takes a long time; run in batches (5–10 per batch)
+2. Make sure the LLM server is running and the model is available
+3. Generated data is for training purposes only; review it manually before production use
+4. The program extracts the decision-relevant sections of the policy document by default (~30K characters)
+5. Each sample contains 3–4 randomly selected questions covering different topics
+6. The teacher model uses Qwen3.6-35B-A3B with temperature=0.3 to obtain probabilistic predictions
+7. gold is derived deterministically from state-embedded facts by rules; a question that cannot be derived is skipped, and if no question in a sample is derivable the sample is dropped and counted as a degradation
+8. `--resume` continues from an existing JSONL up to target (already-completed samples are not regenerated)
+9. After 3 consecutive state-generation failures the program aborts; completed work is kept in the JSONL and can be resumed with `--resume`
+10. Samples that produce no questions at all are counted as degradations (reported on the completion line) and are not written to the dataset
+11. Templates without a facts spec do not participate in question selection (only templates with facts enter the sampling pool)
 
-## 环境要求
+## Environment Requirements
 
 - Python 3.8+
 - requests
-- pdfminer.six（用于 PDF 文本提取）
+- pdfminer.six (for PDF text extraction)
 
 ```bash
 pip install requests pdfminer.six
