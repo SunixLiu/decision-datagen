@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 决策型模型训练数据集生成程序
-基于 @docsrc/Compliance-Manual-2018.pdf 合规手册生成结构化决策训练数据
+基于政策文档生成结构化决策训练数据（支持 compliance、healthcare 等多个领域）
 
 目标格式参考：sql-console-for-n4ze3m-typed-decisions-synth.json
 每条样本包含：state_id, generator, domain, n_questions, state, state_is_json,
@@ -31,9 +31,13 @@ from teacher import average_teacher, validate_teacher
 # ---------------------------------------------------------------------------
 # 1. 从 PDF 提取文本
 # ---------------------------------------------------------------------------
-def extract_policy_text(pdf_path: str = "docsrc/Compliance-Manual-2018.pdf",
-                        txt_path: str = "docsrc/Compliance-Manual-2018.txt") -> str:
-    """提取 PDF 中的文本并保存为 .txt；若已存在则直接读取。"""
+def extract_policy_text(pdf_path: str, txt_path: Optional[str] = None) -> str:
+    """提取 PDF 中的文本并保存为 .txt；若已存在则直接读取。
+
+    txt_path 未指定时，由 pdf_path 的扩展名替换为 .txt 推导。
+    """
+    if txt_path is None:
+        txt_path = os.path.splitext(pdf_path)[0] + ".txt"
     if os.path.exists(txt_path):
         with open(txt_path, "r", encoding="utf-8") as f:
             return f.read()
@@ -50,21 +54,8 @@ def extract_policy_text(pdf_path: str = "docsrc/Compliance-Manual-2018.pdf",
 
 
 # ---------------------------------------------------------------------------
-# 2. 提取合规手册中的关键章节
+# 2. 提取政策文档中的关键章节
 # ---------------------------------------------------------------------------
-RELEVANT_SECTION_KEYWORDS = [
-    "Fiduciary Duty", "Duty to Supervise", "Compliance Risk Assessment",
-    "Registration and Licensing", "Form ADV Disclosure", "Client Contracts",
-    "Books and Records", "Diminished Capacity", "Custody", "Anti Money Laundering",
-    "Proxy Voting", "Advertising", "Social Networking", "Outside Employment",
-    "Correspondence", "Email and Other Electronic Communications", "Complaints",
-    "Portfolio Management", "Suitability", "Account Opening", "Account Closing",
-    "Federal Filing Requirements", "Best Execution", "Trading", "Trade Error",
-    "Economic Benefits", "ERISA", "Privacy Policy", "Information Security",
-    "Cybersecurity", "Fraudulent Transfers", "Identity Theft", "Business Continuity",
-]
-
-
 def split_sections(policy_text):
     """按标题行切分文档，返回 [(title, content), ...]。"""
     lines = policy_text.split("\n")
@@ -93,12 +84,13 @@ def split_sections(policy_text):
 
 
 def extract_relevant_sections(policy_text, max_chars=30000, keywords=None):
-    """从政策文档中提取与决策判断最相关的章节（保持原行为）。"""
-    if keywords is None:
-        keywords = RELEVANT_SECTION_KEYWORDS
+    """从政策文档中提取与决策判断最相关的章节。
+
+    keywords 为空或无匹配章节时，回退到文档前 20 个章节。
+    """
     sections = split_sections(policy_text)
     relevant = [(t, c) for t, c in sections
-                if any(kw.lower() in t.lower() for kw in keywords)]
+                if keywords and any(kw.lower() in t.lower() for kw in keywords)]
     if not relevant:
         relevant = sections[:20]
     parts, total = [], 0
@@ -134,50 +126,7 @@ def build_policy_digest(policy_text, templates, max_chars=3000):
 
 
 # ---------------------------------------------------------------------------
-# 3. 定义问题模板（基于合规手册政策）
-# ---------------------------------------------------------------------------
-def build_question_templates(domain: str = "compliance") -> Dict[str, dict]:
-    """
-    从 question_templates.json 加载指定领域的问题模板。
-    每个问题包含：type (choice/noul/score), instructions, criteria
-
-    支持的领域：compliance, healthcare, education, e-commerce, hr
-    """
-    import json as _json
-    import os as _os
-
-    # 查找模板文件（相对于脚本目录）
-    script_dir = _os.path.dirname(_os.path.abspath(__file__))
-    template_path = _os.path.join(script_dir, "question_templates.json")
-
-    if not _os.path.exists(template_path):
-        raise FileNotFoundError(f"模板文件不存在: {template_path}")
-
-    with open(template_path, "r", encoding="utf-8") as f:
-        all_templates = _json.load(f)
-
-    domain_key = domain.lower()
-    if domain_key in all_templates:
-        raw_templates = all_templates[domain_key]
-    elif "default" in all_templates:
-        raw_templates = all_templates["default"]
-    else:
-        raise ValueError(f"不支持的领域: {domain}。可用领域: {list(all_templates.keys())}")
-
-    # 转换为以 key 为键的字典
-    templates = {}
-    for t in raw_templates:
-        templates[t["key"]] = {
-            "type": t["type"],
-            "instructions": t["instructions"],
-            "criteria": t["criteria"],
-        }
-
-    return templates
-
-
-# ---------------------------------------------------------------------------
-# 4. 生成场景状态（基于合规手册）
+# 3. 生成场景状态（基于政策文档）
 # ---------------------------------------------------------------------------
 def build_state_prompt(domain_config, pool_templates, batch_size, policy_text):
     """构造 state 生成提示词，并注入 ground-truth 字段要求。"""
@@ -221,7 +170,7 @@ def generate_states(llm, policy_text, domain, pool_templates, batch_size, max_to
 
 
 # ---------------------------------------------------------------------------
-# 5. 教师模型回答（probabilistic predictions）
+# 4. 教师模型回答（probabilistic predictions）
 # ---------------------------------------------------------------------------
 def teacher_answer_questions(llm, digests, state, templates, ensemble_n=1, max_tokens=None):
     """批量教师预测：一次调用回答同一 state 的全部问题，逐 key 校验 + ensemble 均值。
@@ -307,7 +256,7 @@ def process_sample(state, selected_templates, domain, teacher_llm, digest, ensem
 
 
 # ---------------------------------------------------------------------------
-# 6. 生成完整数据集
+# 5. 生成完整数据集
 # ---------------------------------------------------------------------------
 def generate_dataset(state_llm, teacher_llm, policy_text, domain, target_samples=50,
                      output_filename="dataset.json", batch_size=10, max_tokens=None,
@@ -373,7 +322,7 @@ def generate_dataset(state_llm, teacher_llm, policy_text, domain, target_samples
     return samples
 
 # ---------------------------------------------------------------------------
-# 7. 执行入口
+# 6. 执行入口
 # ---------------------------------------------------------------------------
 def load_domain_config(domain: str, config_dir: str = ".") -> dict:
     """加载领域配置文件（关键词、提示语模板等）。"""
@@ -424,7 +373,7 @@ def load_domain_config(domain: str, config_dir: str = ".") -> dict:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="使用合规手册生成决策模型训练数据集")
+    parser = argparse.ArgumentParser(description="使用政策文档生成决策模型训练数据集")
     parser.add_argument("--pdf", required=True, help="政策文档PDF路径")
     parser.add_argument("--txt", default=None, help="可选：预提取的文本文件路径")
     parser.add_argument("--target", type=int, default=50)
